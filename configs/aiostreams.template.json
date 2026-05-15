@@ -25,10 +25,12 @@
       "instanceId": "torrentio-default",
       "enabled": true,
       "options": {
+        "name": "Torrentio",
         "useMultipleInstances": false,
         "services": [
           "torbox"
-        ]
+        ],
+        "timeout": 15000
       }
     },
     {
@@ -36,9 +38,11 @@
       "instanceId": "comet-default",
       "enabled": true,
       "options": {
+        "name": "Comet",
         "services": [
           "torbox"
-        ]
+        ],
+        "timeout": 15000
       }
     },
     {
@@ -46,19 +50,23 @@
       "instanceId": "mediafusion-default",
       "enabled": true,
       "options": {
+        "name": "MediaFusion",
         "services": [
           "torbox"
-        ]
+        ],
+        "timeout": 15000
       }
     },
     {
-      "type": "stremthru-torz",
+      "type": "stremthruTorz",
       "instanceId": "stremthru-torz-default",
       "enabled": true,
       "options": {
+        "name": "StremThru Torz",
         "services": [
           "torbox"
-        ]
+        ],
+        "timeout": 15000
       }
     },
     {
@@ -68,7 +76,7 @@
       "category": "Metadata",
       "options": {
         "name": "AIOMetadata",
-        "manifestUrl": "http://aiometadata:3232/manifest.json",
+        "manifestUrl": "http://aiometadata:3232/stremio/${AIOMETADATA_UUID}/manifest.json",
         "resources": [
           "catalog",
           "meta",
@@ -188,17 +196,7 @@
   },
   "excludedStreamExpressions": [
     {
-      "__if": "inputs.coreFilter includes extended",
-      "expression": "/*𝚃𝚊𝚖𝚝𝚊𝚛𝚘 𝙲𝚘𝚖𝚙𝚕𝚎𝚝𝚎 𝚂𝙴𝙻 𝚂𝚎𝚝𝚞𝚙 𝚟2.5.2: 𝙴𝚡𝚝𝚎𝚗𝚍𝚎𝚍 𝚂𝙴𝙻 𝚏𝚒𝚕𝚝𝚎𝚛𝚒𝚗𝚐 𝚎𝚗𝚐𝚒𝚗𝚎*/ []",
-      "enabled": true
-    },
-    {
       "expression": "/*𝚐𝚒𝚝.𝚝𝚊𝚖𝚝𝚊𝚛𝚘.𝚍𝚎 𝚏𝚘𝚛 𝚏𝚞𝚕𝚕 𝚐𝚞𝚒𝚍𝚎 & 𝚊𝚍𝚍𝚒𝚝𝚒𝚘𝚗𝚊𝚕 𝚂𝙴𝙻𝚜*/[]",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.coreFilter includes standard",
-      "expression": "/*𝚃𝚊𝚖𝚝𝚊𝚛𝚘 𝙲𝚘𝚖𝚙𝚕𝚎𝚝𝚎 𝚂𝙴𝙻 𝚂𝚎𝚝𝚞𝚙 𝚟2.5.2: 𝚂𝚝𝚊𝚗𝚍𝚊𝚛𝚍 SEL filtering engine*/ []",
       "enabled": true
     },
     {
@@ -222,306 +220,11 @@
       "enabled": true
     },
     {
-      "__if": "inputs.deviceExclude includes 4k",
-      "expression": "/*No 4K*/ resolution(streams,'2160p')",
-      "exprNames": [
-        "No 4K"
-      ],
-      "enabled": true
-    },
-    {
-      "__if": "inputs.deviceExclude includes 4kRemux",
-      "expression": "/*No 4K Remux*/ quality(resolution(streams,'2160p'),'Bluray REMUX')",
-      "exprNames": [
-        "No 4K Remux"
-      ],
-      "enabled": true
-    },
-    {
-      "__if": "inputs.deviceExclude includes 1080pRemux",
-      "expression": "/*No 1080P Remux*/ quality(resolution(streams,'1080p'),'Bluray REMUX')",
-      "exprNames": [
-        "No 1080P Remux"
-      ],
-      "enabled": true
-    },
-    {
-      "__if": "inputs.deviceExclude includes 720pRemux",
-      "expression": "/*No 720P Remux*/ quality(resolution(streams,'720p'),'Bluray REMUX')",
-      "exprNames": [
-        "No 720P Remux"
-      ],
-      "enabled": true
-    },
-    {
-      "__if": "inputs.deviceExclude includes av1",
-      "expression": "/*No AV1*/ encode(streams, 'AV1')",
-      "exprNames": [
-        "No AV1"
-      ],
-      "enabled": true
-    },
-    {
-      "__if": "inputs.deviceExclude includes trueHD",
-      "expression": "/*No TrueHD & Unknown BD Audio*/ merge(audioTag(streams, 'TrueHD'), audioTag(quality(streams, 'Bluray Remux', 'Bluray'), 'Unknown'))",
-      "exprNames": [
-        "No TrueHD"
-      ],
-      "enabled": true
-    },
-    {
-      "__if": "inputs.deviceExclude includes dts",
-      "expression": "/*No DTS & Unknown BD Audio*/ merge(audioTag(streams, 'DTS:X', 'DTS-ES', 'DTS-HD MA', 'DTS-HD', 'DTS'), audioTag(quality(streams, 'Bluray Remux', 'Bluray'), 'Unknown'))",
-      "exprNames": [
-        "No DTS"
-      ],
-      "enabled": true
-    },
-    {
-      "__if": "inputs.deviceExclude includes DVonly",
-      "expression": "/*No DV-Only*/ visualTag(streams,'DV Only')",
-      "exprNames": [
-        "No DV-Only"
-      ],
-      "enabled": true
-    },
-    {
-      "__if": "inputs.deviceExclude includes dvOnlyNonRemux",
-      "expression": "/*No DV-Only Non-Remux (P5)*/ isAnime?[]:negate(merge(quality(streams,'BluRay REMUX'),releaseGroup(streams, 'Flights'),regexMatched(streams, 'Hulu')),visualTag(streams,'DV Only'))",
-      "exprNames": [
-        "No DV-Only Non-Remux (P5)"
-      ],
-      "enabled": true
-    },
-    {
-      "__if": "inputs.deviceExclude includes DVall",
-      "expression": "/*No DV (All)*/ visualTag(streams,'DV')",
-      "exprNames": [
-        "No DV (All)"
-      ],
-      "enabled": true
-    },
-    {
-      "__if": "inputs.deviceExclude includes DVP7",
-      "expression": "/*No DV Bluray (P7)*/ negate(rseMatched(streams, 'Hybrid'), quality(visualTag(resolution(streams, '2160p'), 'DV'), 'Bluray Remux', 'Bluray'))",
-      "exprNames": [
-        "No DV Bluray (P7)"
-      ],
-      "enabled": true
-    },
-    {
-      "__if": "inputs.deviceExclude includes HDR10+",
-      "expression": "/*No HDR10+ Only*/ visualTag(streams, 'HDR10+')",
-      "exprNames": [
-        "No HDR10+ Only"
-      ],
-      "enabled": true
-    },
-    {
-      "__if": "inputs.deviceExclude includes HDR",
-      "expression": "/*No HDR (All)*/ visualTag(streams, 'HDR', 'HDR10','HDR10+')",
-      "exprNames": [
-        "No HDR (All)"
-      ],
-      "enabled": true
-    },
-    {
-      "__if": "inputs.torboxTier == nonPro",
-      "expression": "/*TB Non-Pro Download Limit*/ size(uncached(service(streams, 'torbox')), '200GB')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.torboxTier == pro",
-      "expression": "/*TB Pro Download Limit*/ size(uncached(service(streams, 'torbox')), '1TB')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.bitrate.bitrateCap != 150 and !inputs.bitrate.bitrateCapDynamic and !inputs.bitrate.bitrateCapSoft",
-      "expression": "/*{{inputs.bitrate.bitrateCap}} Mbps Bitrate Cap (Static)*/ bitrate(streams, {{inputs.bitrate.bitrateCap}}*1000000)",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.bitrate.bitrateCap != 150 and inputs.bitrate.bitrateCapDynamic and !inputs.bitrate.bitrateCapSoft",
-      "expression": "/*{{inputs.bitrate.bitrateCap}} Mbps Bitrate Cap (Dynamic Soft): 80% @ 4k, 50% @ 1080P, 30% @ 720P*/ merge(bitrate(resolution(streams, '2160p'), {{inputs.bitrate.bitrateCap}}*0.8*1000000), bitrate(resolution(streams, '1080p'), {{inputs.bitrate.bitrateCap}}*0.5*1000000), bitrate(resolution(streams, '720p'), {{inputs.bitrate.bitrateCap}}*0.3*1000000))",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.bitrate.mobileBackup != 0.0",
-      "expression": "/*Mobile Backup: {{inputs.bitrate.mobileBackupAmount}} x 1080p/720p/(480p) @ {{inputs.bitrate.mobileBackup}} Mbps Cap*/ count(perGroup(bitrate(negate(merge(library(streams), seadex(streams)),merge(cached(streams),type(streams,'p2p','http'))), 200000,  {{inputs.bitrate.mobileBackup}}*1000000), 'resolution', {{inputs.bitrate.mobileBackupAmount}}, '1080p', '720p')) >= {{inputs.bitrate.mobileBackupAmount}} ?  pin(passthrough(perGroup(bitrate(negate(merge(library(streams), seadex(streams)),merge(cached(streams),type(streams,'p2p','http'))), 200000,  {{inputs.bitrate.mobileBackup}}*1000000), 'resolution', {{inputs.bitrate.mobileBackupAmount}}, '1080p', '720p'), 'excluded', 'required'), 'bottom') : pin(passthrough(perGroup(bitrate(negate(merge(library(streams), seadex(streams)),merge(cached(streams),type(streams,'p2p','http'))), 200000,  {{inputs.bitrate.mobileBackup}}*1000000), 'resolution', {{inputs.bitrate.mobileBackupAmount}}, '1080p', '720p', '480'), 'excluded', 'required'), 'bottom')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.usenet.usenetHealth includes Checkednzb",
-      "expression": "/*☑ NZB Passthrough*/ passthrough(message(type(streams, 'usenet', 'stremio-usenet'),'includes','✅','🧝','💚'), 'excluded', 'required')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.usenet.usenetHealth includes CheckednzbPin",
-      "expression": "/*☑ NZB Pin*/ pin(passthrough(message(type(streams, 'usenet', 'stremio-usenet'),'includes','✅','🧝','💚'), 'excluded', 'required'))",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.usenet.usenetHealth includes CheckednzbOnly",
-      "expression": "/*☑ NZB-Only Passthrough*/ merge(negate(message(streams,'includes','✅','🧝','💚'), type(streams, 'usenet', 'stremio-usenet')), passthrough(message(type(streams, 'usenet', 'stremio-usenet'),'includes','✅','🧝','💚'), 'excluded', 'required'))",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.usenet.usenetHealth includes CheckednzbOnlyPin",
-      "expression": "/*☑ NZB-Only Pin*/ merge(negate(message(streams,'includes','✅','🧝','💚'), type(streams, 'usenet', 'stremio-usenet')), pin(passthrough(message(type(streams, 'usenet', 'stremio-usenet'),'includes','✅','🧝','💚'), 'excluded', 'required')))",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.LanguagePassthrough.language != none and !inputs.LanguagePassthrough.languagePin and !inputs.LanguagePassthrough.languageAnimeOnly",
-      "expression": "/*Top {{inputs.LanguagePassthrough.languageAmount}} {{inputs.LanguagePassthrough.language}} Passthrough*/ passthrough(slice(language(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), '{{inputs.LanguagePassthrough.language}}'), 0, {{inputs.LanguagePassthrough.languageAmount}}), 'excluded', 'required')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.LanguagePassthrough.language != none and inputs.LanguagePassthrough.languagePin and !inputs.LanguagePassthrough.languageAnimeOnly",
-      "expression": "/*Pin {{inputs.LanguagePassthrough.languageAmount}} {{inputs.LanguagePassthrough.language}} Passthrough*/ pin(passthrough(slice(language(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), '{{inputs.LanguagePassthrough.language}}'), 0, {{inputs.LanguagePassthrough.languageAmount}}), 'excluded', 'required'), 'top')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.LanguagePassthrough.language != none and inputs.LanguagePassthrough.language != English and !inputs.LanguagePassthrough.languagePin and inputs.LanguagePassthrough.languageAnimeOnly",
-      "expression": "/*Anime Only {{inputs.LanguagePassthrough.languageAmount}} {{inputs.LanguagePassthrough.language}} Passthrough*/ isAnime ? passthrough(slice(language(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), '{{inputs.LanguagePassthrough.language}}'), 0, {{inputs.LanguagePassthrough.languageAmount}}), 'excluded', 'required') : []",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.LanguagePassthrough.language != none and inputs.LanguagePassthrough.language != English and inputs.LanguagePassthrough.languagePin and inputs.LanguagePassthrough.languageAnimeOnly",
-      "expression": "/*Pin Anime Only {{inputs.LanguagePassthrough.languageAmount}} {{inputs.LanguagePassthrough.language}} Passthrough*/ isAnime ? pin(passthrough(slice(language(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), '{{inputs.LanguagePassthrough.language}}'), 0, {{inputs.LanguagePassthrough.languageAmount}}), 'excluded', 'required'), 'top') : []",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.LanguagePassthrough.language == English and !inputs.LanguagePassthrough.languagePin and inputs.LanguagePassthrough.languageAnimeOnly",
-      "expression": "/*Anime Only {{inputs.LanguagePassthrough.languageAmount}} {{inputs.LanguagePassthrough.language}} Passthrough*/ isAnime ? merge(passthrough(slice(language(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), '{{inputs.LanguagePassthrough.language}}', 'Dual Audio'), 0, {{inputs.LanguagePassthrough.languageAmount}}), 'excluded', 'required')) : []",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.LanguagePassthrough.language == English and inputs.LanguagePassthrough.languagePin and inputs.LanguagePassthrough.languageAnimeOnly",
-      "expression": "/*Pin Anime Only {{inputs.LanguagePassthrough.languageAmount}} {{inputs.LanguagePassthrough.language}} Passthrough*/ isAnime ? merge(pin(seadex(streams)), pin(passthrough(slice(language(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), '{{inputs.LanguagePassthrough.language}}', 'Dual Audio'), 0, {{inputs.LanguagePassthrough.languageAmount}}), 'excluded', 'required'), 'top')) : []",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.LanguagePassthrough.subLanguage != none and !inputs.LanguagePassthrough.subLanguagePin and !inputs.LanguagePassthrough.subLanguageAnimeOnly",
-      "expression": "/*Top {{inputs.LanguagePassthrough.subLanguageAmount}} {{inputs.LanguagePassthrough.subLanguage}} Subtitle Passthrough*/ passthrough(slice(subtitles(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), '{{inputs.LanguagePassthrough.subLanguage}}'), 0, {{inputs.LanguagePassthrough.subLanguageAmount}}), 'excluded', 'required')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.LanguagePassthrough.subLanguage != none and inputs.LanguagePassthrough.subLanguagePin and !inputs.LanguagePassthrough.subLanguageAnimeOnly",
-      "expression": "/*Pin {{inputs.LanguagePassthrough.subLanguageAmount}} {{inputs.LanguagePassthrough.subLanguage}} Subtitle Passthrough*/ pin(passthrough(slice(subtitles(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), '{{inputs.LanguagePassthrough.subLanguage}}'), 0, {{inputs.LanguagePassthrough.subLanguageAmount}}), 'excluded', 'required'), 'top')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.LanguagePassthrough.subLanguage != none and inputs.LanguagePassthrough.subLanguage != English and !inputs.LanguagePassthrough.subLanguagePin and inputs.LanguagePassthrough.subLanguageAnimeOnly",
-      "expression": "/*Anime Only {{inputs.LanguagePassthrough.subLanguageAmount}} {{inputs.LanguagePassthrough.subLanguage}} Subtitle Passthrough*/ isAnime ? passthrough(slice(subtitles(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), '{{inputs.LanguagePassthrough.subLanguage}}'), 0, {{inputs.LanguagePassthrough.subLanguageAmount}}), 'excluded', 'required') : []",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.LanguagePassthrough.subLanguage != none and inputs.LanguagePassthrough.subLanguage != English and inputs.LanguagePassthrough.subLanguagePin and inputs.LanguagePassthrough.subLanguageAnimeOnly",
-      "expression": "/*Pin Anime Only {{inputs.LanguagePassthrough.subLanguageAmount}} {{inputs.LanguagePassthrough.subLanguage}} Subtitle Passthrough*/ isAnime ? pin(passthrough(slice(subtitles(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), '{{inputs.LanguagePassthrough.subLanguage}}'), 0, {{inputs.LanguagePassthrough.subLanguageAmount}}), 'excluded', 'required'), 'top') : []",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.LanguagePassthrough.subLanguage == English and !inputs.LanguagePassthrough.subLanguagePin and inputs.LanguagePassthrough.subLanguageAnimeOnly",
-      "expression": "/*Anime Only {{inputs.LanguagePassthrough.subLanguageAmount}} {{inputs.LanguagePassthrough.subLanguage}} Subtitle Passthrough*/ isAnime ? merge(passthrough(slice(subtitles(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), '{{inputs.LanguagePassthrough.subLanguage}}', 'Dual Audio'), 0, {{inputs.LanguagePassthrough.subLanguageAmount}}), 'excluded', 'required')) : []",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.LanguagePassthrough.subLanguage == English and inputs.LanguagePassthrough.subLanguagePin and inputs.LanguagePassthrough.subLanguageAnimeOnly",
-      "expression": "/*Pin Anime Only {{inputs.LanguagePassthrough.subLanguageAmount}} {{inputs.LanguagePassthrough.subLanguage}} Subtitle Passthrough*/ isAnime ? merge(pin(seadex(streams)), pin(passthrough(slice(subtitles(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), '{{inputs.LanguagePassthrough.subLanguage}}', 'Dual Audio'), 0, {{inputs.LanguagePassthrough.subLanguageAmount}}), 'excluded', 'required'), 'top')) : []",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.miscPassthrough.visualTag includes DV and !inputs.miscPassthrough.visualTagPin",
-      "expression": "/*DV Passthrough*/ passthrough(slice(resolution(visualTag(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), 'DV'), '2160p', '1080p', '720p', '480p', 'Unknown'), 0, 5), 'excluded', 'required')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.miscPassthrough.visualTag includes DV and inputs.miscPassthrough.visualTagPin",
-      "expression": "/*Pin 5 DV Passthrough*/ pin(passthrough(slice(resolution(visualTag(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), 'DV'), '2160p', '1080p', '720p', '480p', 'Unknown'), 0, 5), 'excluded', 'required'), 'top')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.miscPassthrough.visualTag includes dvHDR and !inputs.miscPassthrough.visualTagPin",
-      "expression": "/*Top 5 DV+HDR Passthrough*/ passthrough(slice(resolution(visualTag(visualTag(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), 'DV'), 'HDR', 'HDR10','HDR10+'), '2160p', '1080p', '720p', '480p', 'Unknown'), 0, 5), 'excluded', 'required')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.miscPassthrough.visualTag includes dvHDR and inputs.miscPassthrough.visualTagPin",
-      "expression": "/*Pin 5 DV+HDR Passthrough*/ pin(passthrough(slice(resolution(visualTag(visualTag(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), 'DV'), 'HDR', 'HDR10','HDR10+'), '2160p', '1080p', '720p', '480p', 'Unknown'), 0, 5), 'excluded', 'required'), 'top')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.miscPassthrough.visualTag includes HDRonly and !inputs.miscPassthrough.visualTagPin",
-      "expression": "/*Top 5 HDRonly Passthrough*/ passthrough(slice(resolution(negate(visualTag(streams, 'DV'), visualTag(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), 'HDR', 'HDR10','HDR10+')),  '2160p', '1080p', '720p', '480p', 'Unknown'), 0, 5), 'excluded', 'required')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.miscPassthrough.visualTag includes HDRonly and inputs.miscPassthrough.visualTagPin",
-      "expression": "/*Pin 5 HDRonly Passthrough*/ pin(passthrough(slice(resolution(negate(visualTag(streams, 'DV'), visualTag(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), 'HDR', 'HDR10','HDR10+')),  '2160p', '1080p', '720p', '480p', 'Unknown'), 0, 5), 'excluded', 'required'), 'top')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.miscPassthrough.visualTag includes SDR and !inputs.miscPassthrough.visualTagPin",
-      "expression": "/*Top 5 SDR*/ passthrough(slice(resolution(negate(visualTag(streams, 'HDR', 'HDR10', 'HDR10+', 'DV'), visualTag(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), 'SDR', 'HLG', '10bit', 'IMAX', 'Unknown')), '2160p', '1080p', '720p', '480p', 'Unknown'), 0, 5), 'excluded', 'required')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.miscPassthrough.visualTag includes SDR and inputs.miscPassthrough.visualTagPin",
-      "expression": "/*Pin 5 SDR*/ pin(passthrough(slice(resolution(negate(visualTag(streams, 'HDR', 'HDR10', 'HDR10+', 'DV'), visualTag(merge(cached(streams), type(streams, 'p2p','http','usenet','stremio-usenet')), 'SDR', 'HLG', '10bit', 'IMAX', 'Unknown')), '2160p', '1080p', '720p', '480p', 'Unknown'), 0, 5), 'excluded', 'required'), 'top')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.miscPassthrough.top1ResPin",
-      "expression": "/*Pin Top 1 Per Resolution (3 Max)*/ pin(merge(seadex(streams), passthrough(slice(negate(merge(uncached(type(streams, 'debrid'))), merge(slice(resolution(streams,'2160p'), 0, 1), slice(resolution(streams,'1080p'), 0, 1), slice(resolution(streams,'720p'), 0, 1), slice(resolution(streams,'576p','480p','Unknown'), 0, 1))), 0, 3), 'excluded', 'required')), 'top')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.miscPassthrough.top1QualResPin",
-      "expression": "/*Top 1 Per Quality/Resolution (6 Max)*/ pin(merge(seadex(streams), passthrough(slice(negate(merge(uncached(type(streams, 'debrid'))), merge(slice(quality(resolution(streams,'2160p'),'Bluray REMUX'),0,1),slice(quality(resolution(streams,'2160p'),'Bluray'),0,1), slice(quality(resolution(streams,'2160p'),'WEB-DL'),0,1),slice(quality(resolution(streams,'1080p'),'Bluray REMUX'),0,1), slice(quality(resolution(streams,'1080p'),'Bluray'),0,1),slice(quality(resolution(streams,'1080p'),'WEB-DL'),0,1), slice(quality(resolution(streams,'720p'),'Bluray REMUX'),0,1),slice(quality(resolution(streams,'720p'),'Bluray'),0,1), slice(quality(resolution(streams,'720p'),'WEB-DL'),0,1))), 0, 6), 'excluded', 'required')), 'top')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.miscPassthrough.overallTopQualRes and inputs.miscPassthrough.overallTopQualRes > 0",
-      "expression": "/*Top {{inputs.miscPassthrough.overallTopQualRes}} Overall Per Quality/Resolution*/ passthrough(slice(merge(perGroup(resolution(negate(merge(library(streams), seadex(streams)),merge(cached(streams),type(streams,'p2p','http'))), '2160p'), 'quality', {{inputs.miscPassthrough.overallTopQualRes}}, 'Bluray REMUX', 'Bluray', 'WEB-DL'), perGroup(resolution(negate(merge(library(streams), seadex(streams)),merge(cached(streams),type(streams,'p2p','http'))), '1440p'), 'quality', {{inputs.miscPassthrough.overallTopQualRes}}, 'Bluray REMUX', 'Bluray', 'WEB-DL'), perGroup(resolution(negate(merge(library(streams), seadex(streams)),merge(cached(streams),type(streams,'p2p','http'))), '1080p'), 'quality', {{inputs.miscPassthrough.overallTopQualRes}}, 'Bluray REMUX', 'Bluray', 'WEB-DL'), perGroup(resolution(negate(merge(library(streams), seadex(streams)),merge(cached(streams),type(streams,'p2p','http'))), '720p'), 'quality', {{inputs.miscPassthrough.overallTopQualRes}}, 'Bluray REMUX', 'Bluray', 'WEB-DL')  ),  0, {{inputs.miscPassthrough.overallTopQualRes}}*6),  'excluded')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.usenet.usenetTopQualRes and inputs.usenet.usenetTopQualRes > 0",
-      "expression": "/*Top {{inputs.usenet.usenetTopQualRes}} Usenet Per Quality/Resolution*/ passthrough(slice(negate(merge(library(streams), message(streams,'includes','✅','🧝','💚')), merge(slice(quality(resolution(type(streams, 'usenet', 'stremio-usenet'),'2160p'),'Bluray REMUX'),0,{{inputs.usenet.usenetTopQualRes}}),slice(quality(resolution(type(streams, 'usenet', 'stremio-usenet'),'2160p'),'Bluray'),0,{{inputs.usenet.usenetTopQualRes}}), slice(quality(resolution(type(streams, 'usenet', 'stremio-usenet'),'2160p'),'WEB-DL'),0,{{inputs.usenet.usenetTopQualRes}}),slice(quality(resolution(type(streams, 'usenet', 'stremio-usenet'),'1080p'),'Bluray REMUX'),0,{{inputs.usenet.usenetTopQualRes}}), slice(quality(resolution(type(streams, 'usenet', 'stremio-usenet'),'1080p'),'Bluray'),0,{{inputs.usenet.usenetTopQualRes}}),slice(quality(resolution(type(streams, 'usenet', 'stremio-usenet'),'1080p'),'WEB-DL'),0,{{inputs.usenet.usenetTopQualRes}}), slice(quality(resolution(type(streams, 'usenet', 'stremio-usenet'),'720p'),'Bluray REMUX'),0,{{inputs.usenet.usenetTopQualRes}}),slice(quality(resolution(type(streams, 'usenet', 'stremio-usenet'),'720p'),'Bluray'),0,{{inputs.usenet.usenetTopQualRes}}), slice(quality(resolution(type(streams, 'usenet', 'stremio-usenet'),'720p'),'WEB-DL'),0,{{inputs.usenet.usenetTopQualRes}}))), 0, {{inputs.usenet.usenetTopQualRes}}*6), 'excluded')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.coreFilter includes extended",
       "expression": "<SYNCED: https://raw.githubusercontent.com/Tam-Taro/SEL-Filtering-and-Sorting/refs/heads/main/AIOStreams-SyncedURLs/Tamtaro-synced-ESEs-extended.json>",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.coreFilter includes standard",
-      "expression": "<SYNCED: https://raw.githubusercontent.com/Tam-Taro/SEL-Filtering-and-Sorting/refs/heads/main/AIOStreams-SyncedURLs/Tamtaro-synced-ESEs-standard.json>",
       "enabled": true
     }
   ],
   "preferredStreamExpressions": [
-    {
-      "__if": "inputs.bitrate.bitrateCap != 150 and !inputs.bitrate.bitrateCapDynamic and inputs.bitrate.bitrateCapSoft",
-      "expression": "/*{{inputs.bitrate.bitrateCap}} Mbps Bitrate Cap (Static Soft)*/ bitrate(streams, {{inputs.bitrate.bitrateCap}}*1000000)",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.bitrate.bitrateCap != 150 and inputs.bitrate.bitrateCapDynamic and inputs.bitrate.bitrateCapSoft",
-      "expression": "/*{{inputs.bitrate.bitrateCap}} Mbps Bitrate Cap (Dynamic Soft): 80% @ 4k, 50% @ 1080P, 30% @ 720P*/ merge(bitrate(resolution(streams, '2160p'), {{inputs.bitrate.bitrateCap}}*0.8*1000000), bitrate(resolution(streams, '1080p'), {{inputs.bitrate.bitrateCap}}*0.5*1000000), bitrate(resolution(streams, '720p'), {{inputs.bitrate.bitrateCap}}*0.3*1000000))",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.usenet.usenetSort and !inputs.usenet.usenetUncachedSort",
-      "expression": "/*Boost Cached Usenet*/ merge(cached(merge(library(streams),seadex(streams),type(streams,'debrid','usenet','stremio-usenet'))))",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.usenet.usenetUncachedSort",
-      "expression": "/*Boost All Usenet*/ merge(cached(merge(library(streams),seadex(streams),type(streams,'debrid'))), type(streams, 'usenet', 'stremio-usenet'))",
-      "enabled": true
-    },
     {
       "expression": "/*𝙸𝚏 𝚢𝚘𝚞 𝚞𝚜𝚎𝚍 𝙿𝚊𝚛𝚝𝚒𝚊𝚕 𝚃𝚎𝚖𝚙𝚕𝚊𝚝𝚎, 𝚊𝚍𝚍 𝚂𝚝𝚛𝚎𝚊𝚖 𝙴𝚡𝚙𝚛𝚎𝚜𝚜𝚒𝚘𝚗𝚜 𝚒𝚗 𝚂𝚘𝚛𝚝 𝙾𝚛𝚍𝚎𝚛 𝚊𝚏𝚝𝚎𝚛 𝚀𝚞𝚊𝚕𝚒𝚝𝚢 𝚝𝚘 𝚞𝚜𝚎 𝙿𝚂𝙴 𝚜𝚢𝚗𝚌𝚎𝚍 𝚞𝚛𝚕 𝚋𝚎𝚕𝚘𝚠.*/ []",
       "enabled": true
@@ -533,22 +236,18 @@
   ],
   "includedStreamExpressions": [
     {
-      "__if": "inputs.LanguagePassthrough.language != none",
-      "expression": "/*{{inputs.LanguagePassthrough.language}} Language Passthrough*/ passthrough(language(streams, '{{inputs.LanguagePassthrough.language}}'), 'language')",
-      "enabled": true
-    },
-    {
-      "__if": "inputs.LanguagePassthrough.subLanguage != none",
-      "expression": "/*{{inputs.LanguagePassthrough.subLanguage}} Subtitle Language Passthrough*/ passthrough(subtitles(streams, '{{inputs.LanguagePassthrough.subLanguage}}'), 'language')",
-      "enabled": true
-    },
-    {
       "expression": "<SYNCED: https://raw.githubusercontent.com/Tam-Taro/SEL-Filtering-and-Sorting/refs/heads/main/AIOStreams-SyncedURLs/Tamtaro-synced-ISEs.json>",
       "enabled": true
     }
   ],
-  "syncedRankedRegexUrls": [
-    "https://raw.githubusercontent.com/Vidhin05/Releases-Regex/main/all-templates.json"
+  "syncedPreferredStreamExpressionUrls": [
+    "https://raw.githubusercontent.com/Tam-Taro/SEL-Filtering-and-Sorting/refs/heads/main/AIOStreams-SyncedURLs/Tamtaro-synced-PSEs.json"
+  ],
+  "syncedExcludedStreamExpressionUrls": [
+    "https://raw.githubusercontent.com/Tam-Taro/SEL-Filtering-and-Sorting/refs/heads/main/AIOStreams-SyncedURLs/Tamtaro-synced-ESEs-extended.json"
+  ],
+  "syncedIncludedStreamExpressionUrls": [
+    "https://raw.githubusercontent.com/Tam-Taro/SEL-Filtering-and-Sorting/refs/heads/main/AIOStreams-SyncedURLs/Tamtaro-synced-ISEs.json"
   ],
   "tmdbApiKey": "${TMDB_API_KEY}",
   "tvdbApiKey": "${TVDB_API_KEY}",

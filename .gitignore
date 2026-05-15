@@ -3,6 +3,11 @@ keys.txt
 monochrome-formatter.txt
 .env
 *.local.*
+# Live manifest URL with UUID + addon password — generated per-install, must never be shared
+MANIFEST_URL.txt
+
+# Session-internal notes for Claude Code working in this directory
+CLAUDE.md
 
 # Rendered configs with substituted keys (contain real API keys)
 configs/rendered/

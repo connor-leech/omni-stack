@@ -32,7 +32,7 @@ Self-hosted Stremio addon stack for the [Omni](https://github.com/elfhosted/omni
                                   └───────────────┘
 ```
 
-Reachable from any Tailnet device as `http://mini:3001/configure` and `http://mini:3232/configure` (MagicDNS).
+Reachable from any Tailnet device via MagicDNS (`http://mini:3001`, `http://mini:3232`) and publicly via Cloudflare tunnel at `https://omni.connorleech.dev` (AIOStreams only — AIOMetadata stays internal).
 
 ## Quick start
 
@@ -50,27 +50,39 @@ $EDITOR .env
 ./scripts/bootstrap.sh
 ```
 
-`bootstrap.sh` runs `docker compose up -d`, waits for healthchecks, and then prints the two `/configure` URLs and the AIOStreams manifest pattern.
+`bootstrap.sh` runs `docker compose up -d`, waits for healthchecks, and then prints the two `/configure` URLs and import instructions.
 
-## One-time UI walkthrough
+## One-time setup
 
-After `docker compose up -d` succeeds, the rendered configs are in `configs/rendered/*.json` (gitignored — they contain your real keys). The `.json` extension matters: both addons' `/configure` UIs filter the file picker by extension and reject `.rendered.json`.
+After `docker compose up -d` succeeds, run `./scripts/render-configs.sh` to produce `configs/rendered/*.json` (gitignored — real keys substituted). Then load the AIOStreams config via the API (more reliable than the UI file picker):
 
-> **Note:** AIOMetadata may show *"Configuration file version mismatch: this file was exported from 1.24.2, but you're running 2.3.0"* on import. That's expected — Tamtaro's published non-anime config hasn't been re-exported since AIOMetadata went 2.x. The import works; just spot-check the catalog list and provider settings in the UI before saving.
+```bash
+python3 -c "
+import json
+with open('configs/rendered/aiostreams.json') as f:
+    config = json.load(f)
+config['addonPassword'] = '$(grep AIOSTREAMS_PASSWORD .env | cut -d= -f2)'
+print(json.dumps({'password': 'choose-a-password', 'config': config}))
+" | curl -s -X POST http://localhost:3001/api/v1/user \
+     -H 'Content-Type: application/json' --data-binary @-
+```
 
-1. **AIOMetadata** — `http://mini:3232/configure`
-   - Click *Import / Restore* and select `configs/rendered/aiometadata.json`.
-   - Save. The page gives you a manifest URL containing your UUID, e.g. `http://mini:3232/<UUID>/manifest.json`.
-   - Copy the **path portion** (`/<UUID>/manifest.json`) — you'll splice it into the AIOStreams custom addon URL next.
+The response contains a `uuid`. Your manifest URL is then:
 
-2. **AIOStreams** — `http://mini:3001/configure`
-   - Set the addon password to whatever you put in `AIOSTREAMS_PASSWORD`.
-   - Click *Import / Restore* and select `configs/rendered/aiostreams.json`.
-   - Find the *AIOMetadata* entry in the addon list and change its manifest URL from `http://aiometadata:3232/manifest.json` to `http://aiometadata:3232/<UUID>/manifest.json` (using the UUID from step 1). Internal Docker DNS is mandatory here — `aiometadata` is the container name on the `omni-stack` network.
-   - Save. Copy the manifest URL it gives you, e.g. `http://mini:3001/<UUID>/manifest.json`.
-   - **Trakt:** under Catalogs / Apps, run the Trakt OAuth flow once. This is interactive and can't be baked into the config.
+```
+GET http://localhost:3001/api/v1/user?uuid=<UUID>&password=<PASSWORD>
+# → encryptedPassword field
+# Manifest: http://mini:3001/stremio/<UUID>/<encryptedPassword>/manifest.json
+# Public:   https://omni.connorleech.dev/stremio/<UUID>/<encryptedPassword>/manifest.json
+```
 
-3. **Paste the AIOStreams manifest URL into Omni.** Done.
+Save both to `MANIFEST_URL.txt` for reference.
+
+**AIOMetadata one-time steps** — `http://mini:3232`:
+- Verify TMDB / TVDB connections are live (Settings → Providers).
+- Run the **Trakt OAuth** flow (Settings → Apps → Trakt). This is interactive and can't be automated.
+
+> **Version mismatch warning:** AIOMetadata may warn *"Configuration file version mismatch"* on import — expected, Tamtaro's config predates the current release. The import works fine; spot-check catalog list and provider settings before saving.
 
 ## Friend-fork instructions
 
@@ -107,6 +119,7 @@ Grab them manually and install via the Omni app's *Sources / Catalog Covers* set
 
 ```
 omni-stack/
+├── MANIFEST_URL.txt                 # live manifest URL + UUID/password (gitignored — generated per install)
 ├── .env.example                     # template; copy to .env (gitignored)
 ├── .gitignore
 ├── docker-compose.yml
@@ -148,7 +161,7 @@ docker logs -f aiometadata
 docker logs -f aiometadata_redis
 ```
 
-**Restoring after wiping a UUID** — re-import `configs/*.rendered.json` via the `/configure` UI. You'll get a fresh UUID, so update the Omni manifest URL.
+**Restoring after wiping a UUID** — re-run the API import command from the *One-time setup* section above. You'll get a fresh UUID; update `MANIFEST_URL.txt` and re-paste into Omni.
 
 **Container can't reach AIOMetadata** — the addon URL must be `http://aiometadata:3232/...` (internal Docker DNS), not `http://mini:3232/...`. AIOStreams runs inside the `omni-stack` network and can't hit the host's published port.
 
@@ -162,4 +175,4 @@ This re-fetches Vidhin's regex JSON, Tamtaro's SEL JSON, and Tamtaro's non-anime
 
 ## Secret hygiene
 
-`keys.txt`, `monochrome-formatter.txt`, `.env`, and `configs/*.rendered.json` are all in `.gitignore`. **Don't remove those entries.** If `git status` ever shows any of them as tracked or staged, stop and untrack before committing.
+`keys.txt`, `monochrome-formatter.txt`, `.env`, `MANIFEST_URL.txt`, and `configs/rendered/` are all in `.gitignore`. **Don't remove those entries.** If `git status` ever shows any of them as tracked or staged, stop and untrack before committing. `MANIFEST_URL.txt` in particular contains your live UUID + addon password — sharing it gives someone a working manifest into your stack.

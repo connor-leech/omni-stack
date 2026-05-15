@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # bootstrap.sh — bring the stack up, wait for healthchecks, and print the
-# one-time UI steps + the AIOStreams manifest URL pattern Omni connects to.
+# one-time API import command + manifest URL pattern Omni connects to.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -47,31 +47,42 @@ cat <<EOF
 ================================================================================
 omni-stack is up.
 
-One-time UI setup (do this once per fresh install, or after wiping volumes):
+One-time setup (do this once per fresh install, or after wiping volumes):
 
-  1. AIOMetadata — http://${HOST_NAME}:${AIOMETADATA_PORT}/configure
-     - Import configs/rendered/aiometadata.json (Import / Restore button).
-     - Save. Copy the manifest URL it gives you (something like
-       http://${HOST_NAME}:${AIOMETADATA_PORT}/<UUID>/manifest.json).
-     - From inside Docker, AIOStreams will reach AIOMetadata at
-       http://aiometadata:3232/<UUID>/manifest.json — use that internal form
-       when AIOStreams asks for the custom addon URL.
+  1. AIOMetadata — http://${HOST_NAME}:${AIOMETADATA_PORT}
+     - Open Settings → Providers; confirm TMDB / TVDB are live.
+     - Run the Trakt OAuth flow (Settings → Apps → Trakt). This is interactive
+       and can't be scripted.
+     - Note the AIOMetadata UUID from its manifest URL — the AIOStreams
+       template references it as \${AIOMETADATA_UUID}. Open
+       configs/rendered/aiostreams.json and replace that placeholder with the
+       real UUID before running step 2.
 
-  2. AIOStreams — http://${HOST_NAME}:${AIOSTREAMS_PORT}/configure
-     - Set the addon password to the AIOSTREAMS_PASSWORD value from .env.
-     - Import configs/rendered/aiostreams.json (Import / Restore button).
-     - Update the AIOMetadata custom-addon entry's manifestUrl to include the
-       UUID you got in step 1 (http://aiometadata:3232/<UUID>/manifest.json).
-     - Save. Copy the manifest URL it gives you.
-     - Trakt: under Catalogs / Apps, run the Trakt OAuth flow (manual).
+  2. AIOStreams — load the rendered config via the API. Pick a user password
+     (used by /configure to unlock this config) and run:
 
-  3. Paste that AIOStreams manifest URL into Omni.
+       PW='choose-a-password'
+       python3 -c "
+       import json, os
+       with open('configs/rendered/aiostreams.json') as f: c = json.load(f)
+       c['addonPassword'] = os.environ['AIOSTREAMS_PASSWORD']
+       print(json.dumps({'password': os.environ['PW'], 'config': c}))
+       " | PW="\$PW" curl -s -X POST http://localhost:${AIOSTREAMS_PORT}/api/v1/user \\
+            -H 'Content-Type: application/json' --data-binary @-
 
-AIOStreams manifest URL pattern (after you save in /configure):
-    http://${HOST_NAME}:${AIOSTREAMS_PORT}/<UUID>/manifest.json
+     The response contains a \`uuid\`. Fetch the encrypted password token:
+
+       curl -s "http://localhost:${AIOSTREAMS_PORT}/api/v1/user?uuid=<UUID>&password=\$PW"
+
+     The \`encryptedPassword\` field in that response goes in the manifest URL.
+
+  3. Paste this manifest URL into Omni (and save a copy to MANIFEST_URL.txt
+     for reference — gitignored):
+
+       http://${HOST_NAME}:${AIOSTREAMS_PORT}/stremio/<UUID>/<encryptedPassword>/manifest.json
 
 Useful URLs:
-  AIOStreams   /configure : http://${HOST_NAME}:${AIOSTREAMS_PORT}/configure
-  AIOMetadata  /configure : http://${HOST_NAME}:${AIOMETADATA_PORT}/configure
+  AIOStreams   UI : http://${HOST_NAME}:${AIOSTREAMS_PORT}
+  AIOMetadata  UI : http://${HOST_NAME}:${AIOMETADATA_PORT}
 ================================================================================
 EOF
