@@ -1,0 +1,97 @@
+# omni-stack: AIOStreams (entry point) + AIOMetadata (wrapped as a custom addon) + Redis (AIOMetadata cache).
+# AIOStreams is the single manifest Omni connects to. AIOMetadata is plumbed in via the internal
+# Docker DNS name (http://aiometadata:3232) so its catalogs flow through AIOStreams to Omni.
+
+name: omni-stack
+
+services:
+  aiostreams:
+    image: ghcr.io/viren070/aiostreams:latest
+    container_name: aiostreams
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:${AIOSTREAMS_PORT:-3001}:3000"
+    env_file: .env
+    environment:
+      PORT: "3000"
+      BASE_URL: "${AIOSTREAMS_BASE_URL:-http://${HOST_NAME:-mini}:${AIOSTREAMS_PORT:-3001}}"
+      ADDON_PASSWORD: "${AIOSTREAMS_PASSWORD}"
+      SECRET_KEY: "${AIOSTREAMS_SECRET_KEY}"
+      TRUST_PROXY: "true"
+      DATABASE_URI: "sqlite:///data/db.sqlite"
+      TEMPLATE_URLS: '["https://raw.githubusercontent.com/Vidhin05/Releases-Regex/main/all-templates.json"]'
+      TEMPLATE_REFRESH_INTERVAL: "3600"
+      SEL_SYNC_ACCESS: "all"
+      REGEX_FILTER_ACCESS: "all"
+    volumes:
+      - aiostreams_data:/data
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/v1/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      aiometadata:
+        condition: service_healthy
+    networks:
+      - omni
+
+  aiometadata:
+    image: ghcr.io/cedya77/aiometadata:latest
+    container_name: aiometadata
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:${AIOMETADATA_PORT:-3232}:3232"
+    env_file: .env
+    environment:
+      PORT: "3232"
+      HOST: "0.0.0.0"
+      BASE_URL: "${AIOMETADATA_BASE_URL:-http://${HOST_NAME:-mini}:${AIOMETADATA_PORT:-3232}}"
+      REDIS_URL: "redis://aiometadata_redis:6379"
+      TMDB_API_KEY: "${TMDB_API_KEY}"
+      TVDB_API_KEY: "${TVDB_API_KEY}"
+      MDBLIST_API_KEY: "${MDBLIST_API_KEY:-}"
+      RPDB_API_KEY: "${RPDB_API_KEY:-}"
+    volumes:
+      - aiometadata_data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3232/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      aiometadata_redis:
+        condition: service_healthy
+    networks:
+      - omni
+
+  aiometadata_redis:
+    image: redis:7-alpine
+    container_name: aiometadata_redis
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --save
+      - "3600 1"
+    volumes:
+      - aiometadata_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - omni
+
+networks:
+  omni:
+    name: omni-stack
+
+volumes:
+  aiostreams_data:
+  aiometadata_data:
+  aiometadata_redis_data:

@@ -1,0 +1,25 @@
+# Secrets — NEVER commit these
+keys.txt
+monochrome-formatter.txt
+.env
+*.local.*
+
+# Rendered configs with substituted keys
+configs/*.rendered.json
+
+# Runtime data
+data/
+
+# Working/reference material (prompt doc + screenshots, ~6.5MB of JPEGs)
+claude/
+
+# Editor / OS noise
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
