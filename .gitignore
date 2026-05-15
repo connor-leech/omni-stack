@@ -4,8 +4,12 @@ monochrome-formatter.txt
 .env
 *.local.*
 
-# Rendered configs with substituted keys
+# Rendered configs with substituted keys (contain real API keys)
+configs/rendered/
+# Legacy / loose import files (kept ignored for safety if anyone renames a rendered file)
 configs/*.rendered.json
+configs/aiostreams.json
+configs/aiometadata.json
 
 # Runtime data
 data/

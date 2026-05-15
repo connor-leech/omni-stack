@@ -54,16 +54,18 @@ $EDITOR .env
 
 ## One-time UI walkthrough
 
-After `docker compose up -d` succeeds, the rendered configs are in `configs/*.rendered.json` (gitignored — they contain your real keys). You import them once.
+After `docker compose up -d` succeeds, the rendered configs are in `configs/rendered/*.json` (gitignored — they contain your real keys). The `.json` extension matters: both addons' `/configure` UIs filter the file picker by extension and reject `.rendered.json`.
+
+> **Note:** AIOMetadata may show *"Configuration file version mismatch: this file was exported from 1.24.2, but you're running 2.3.0"* on import. That's expected — Tamtaro's published non-anime config hasn't been re-exported since AIOMetadata went 2.x. The import works; just spot-check the catalog list and provider settings in the UI before saving.
 
 1. **AIOMetadata** — `http://mini:3232/configure`
-   - Click *Import / Restore* and select `configs/aiometadata.rendered.json`.
+   - Click *Import / Restore* and select `configs/rendered/aiometadata.json`.
    - Save. The page gives you a manifest URL containing your UUID, e.g. `http://mini:3232/<UUID>/manifest.json`.
    - Copy the **path portion** (`/<UUID>/manifest.json`) — you'll splice it into the AIOStreams custom addon URL next.
 
 2. **AIOStreams** — `http://mini:3001/configure`
    - Set the addon password to whatever you put in `AIOSTREAMS_PASSWORD`.
-   - Click *Import / Restore* and select `configs/aiostreams.rendered.json`.
+   - Click *Import / Restore* and select `configs/rendered/aiostreams.json`.
    - Find the *AIOMetadata* entry in the addon list and change its manifest URL from `http://aiometadata:3232/manifest.json` to `http://aiometadata:3232/<UUID>/manifest.json` (using the UUID from step 1). Internal Docker DNS is mandatory here — `aiometadata` is the container name on the `omni-stack` network.
    - Save. Copy the manifest URL it gives you, e.g. `http://mini:3001/<UUID>/manifest.json`.
    - **Trakt:** under Catalogs / Apps, run the Trakt OAuth flow once. This is interactive and can't be baked into the config.
@@ -119,6 +121,7 @@ omni-stack/
 │   ├── render-configs.sh            # substitute ${VAR} from .env into *.rendered.json
 │   ├── export-configs.sh            # walkthrough for exporting from the UI
 │   └── update-mirrors.sh            # refresh Vidhin/Tamtaro mirrors from upstream
+├── configs/rendered/                # gitignored — render-configs.sh output, real keys substituted
 ├── data/                            # runtime data (gitignored)
 └── monochrome-formatter.txt         # gitignored — source for the custom formatter
 ```

@@ -30,9 +30,12 @@ fi
 : "${RPDB_API_KEY:=}"
 : "${REAL_DEBRID_API_KEY:=}"
 
+mkdir -p configs/rendered
+
 shopt -s nullglob
 for tpl in configs/*.template.json; do
-  out="${tpl%.template.json}.rendered.json"
+  name="$(basename "${tpl%.template.json}")"
+  out="configs/rendered/${name}.json"
   # envsubst only replaces $VAR / ${VAR} that we explicitly list, so unrelated
   # ${...} in template strings (e.g. ${CLAUDE_PLUGIN_ROOT}) won't get clobbered.
   envsubst '${TMDB_API_KEY} ${TVDB_API_KEY} ${MDBLIST_API_KEY} ${RPDB_API_KEY} ${TORBOX_API_KEY} ${REAL_DEBRID_API_KEY}' \
@@ -43,5 +46,5 @@ for tpl in configs/*.template.json; do
 done
 
 echo
-echo "Done. The rendered files live alongside the templates and are gitignored."
-echo "Import them via the /configure UI of each addon (see README)."
+echo "Done. Rendered files are in configs/rendered/ (plain .json extension so"
+echo "the /configure UI file pickers accept them). The directory is gitignored."

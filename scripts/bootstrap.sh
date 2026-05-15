@@ -50,7 +50,7 @@ omni-stack is up.
 One-time UI setup (do this once per fresh install, or after wiping volumes):
 
   1. AIOMetadata — http://${HOST_NAME}:${AIOMETADATA_PORT}/configure
-     - Import configs/aiometadata.rendered.json (Import / Restore button).
+     - Import configs/rendered/aiometadata.json (Import / Restore button).
      - Save. Copy the manifest URL it gives you (something like
        http://${HOST_NAME}:${AIOMETADATA_PORT}/<UUID>/manifest.json).
      - From inside Docker, AIOStreams will reach AIOMetadata at
@@ -59,7 +59,7 @@ One-time UI setup (do this once per fresh install, or after wiping volumes):
 
   2. AIOStreams — http://${HOST_NAME}:${AIOSTREAMS_PORT}/configure
      - Set the addon password to the AIOSTREAMS_PASSWORD value from .env.
-     - Import configs/aiostreams.rendered.json (Import / Restore button).
+     - Import configs/rendered/aiostreams.json (Import / Restore button).
      - Update the AIOMetadata custom-addon entry's manifestUrl to include the
        UUID you got in step 1 (http://aiometadata:3232/<UUID>/manifest.json).
      - Save. Copy the manifest URL it gives you.
